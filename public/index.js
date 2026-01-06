@@ -86,6 +86,17 @@ form.addEventListener("submit", async (e) => {
     if (!res.ok) throw new Error(payload.message || "Error guardando confirmación.");
 
     setStatus("¡Listo! Gracias por confirmar.", "ok");
+    
+    // Quitar del select y del cache para que no pueda volver a confirmar
+    const selectedId = Number(invitadoSelect.value);
+    invitadosCache = invitadosCache.filter((x) => x.id !== selectedId);
+
+    const optToRemove = invitadoSelect.querySelector(`option[value="${selectedId}"]`);
+    if (optToRemove) optToRemove.remove();
+
+    // dejar el select en "Selecciona tu nombre"
+    invitadoSelect.value = "";
+
     form.reset();
     helpMax.textContent = "";
     fillAcompanantes(0);

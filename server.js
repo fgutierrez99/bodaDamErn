@@ -20,7 +20,7 @@ app.use(express.static("public"));
 app.get("/api/invitados", async (_req, res) => {
   try {
     const invitados = await prisma.invitado.findMany({
-      where: { estado: { not: "INACTIVO" } },
+      where: { estado: "SIN_CONFIRMAR" },
       orderBy: { nombre: "asc" },
       select: { id: true, nombre: true, maxAcomp: true, estado: true }
     });
@@ -55,6 +55,12 @@ app.post("/api/rsvp", async (req, res) => {
     });
 
     if (!invitado) return res.status(404).json({ message: "Invitado no existe." });
+
+    if (invitado.estado !== "SIN_CONFIRMAR") {
+      return res.status(409).json({
+        message: "Este invitado ya confirmó o rechazó. Ya no se puede enviar otra respuesta."
+      });
+    }
 
     const count = Number(acompCount ?? 0);
     if (Number.isNaN(count) || count < 0 || count > invitado.maxAcomp) {
