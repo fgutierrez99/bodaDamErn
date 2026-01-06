@@ -29,12 +29,19 @@ async function loadInvitados() {
 
     invitadosCache = data;
 
+    // Limpia opciones previas (deja el placeholder value="")
+    invitadoSelect.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+
     data.forEach((i) => {
+      // Extra seguridad: si viniera por error CONFIRMO/RECHAZO, no lo muestres
+      if (i.estado && i.estado !== "SIN_CONFIRMAR") return;
+
       const opt = document.createElement("option");
       opt.value = String(i.id);
       opt.textContent = i.nombre;
       invitadoSelect.appendChild(opt);
     });
+
   } catch (e) {
     setStatus(e.message, "err");
   }
@@ -60,7 +67,7 @@ form.addEventListener("submit", async (e) => {
 
   const invitadoId = Number(invitadoSelect.value);
   const correo = document.getElementById("correo").value.trim();
-  const asistiraVal = document.getElementById("asistiraVal").value;
+  const asistiraVal = document.getElementById("asistira").value;
   const acompCount = Number(acompReal.value || 0);
   const comentario = document.getElementById("comentario").value.trim();
 
@@ -86,7 +93,7 @@ form.addEventListener("submit", async (e) => {
     if (!res.ok) throw new Error(payload.message || "Error guardando confirmación.");
 
     setStatus("¡Listo! Gracias por confirmar.", "ok");
-    
+
     // Quitar del select y del cache para que no pueda volver a confirmar
     const selectedId = Number(invitadoSelect.value);
     invitadosCache = invitadosCache.filter((x) => x.id !== selectedId);
@@ -100,6 +107,7 @@ form.addEventListener("submit", async (e) => {
     form.reset();
     helpMax.textContent = "";
     fillAcompanantes(0);
+    await loadInvitados();
   } catch (e) {
     setStatus(e.message, "err");
   }
