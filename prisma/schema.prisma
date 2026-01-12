@@ -1,10 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model Invitado {
+  id         Int              @id @default(autoincrement())
+  nombre     String           @unique
+  correo     String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  asistira   Boolean?
+  comentario String?
+  acompCount Int              @default(0)
+  maxAcomp   Int              @default(0)
+  estado     EstadoInvitado   @default(SIN_CONFIRMAR)
+  invitadode invitadode_enum?
 }
 
 enum EstadoInvitado {
@@ -14,19 +28,7 @@ enum EstadoInvitado {
   INACTIVO
 }
 
-model Invitado {
-  id          Int             @id @default(autoincrement())
-  nombre      String          @unique
-  maxAcomp    Int             @default(0)
-
-  // Confirmación
-  correo      String?
-  asistira    Boolean?
-  acompCount  Int             @default(0)
-  comentario  String?
-
-  estado      EstadoInvitado  @default(SIN_CONFIRMAR)
-
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+enum invitadode_enum {
+  Damaris
+  Ernesto
 }
